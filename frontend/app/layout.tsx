@@ -1,16 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "TravelNest",
@@ -22,12 +11,50 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const extensionHydrationGuard = `
+    (() => {
+      const injectedAttributes = ["bis_skin_checked", "fdprocessedid"];
+      const clean = (root) => {
+        if (root.nodeType !== Node.ELEMENT_NODE) return;
+        for (const attribute of injectedAttributes) root.removeAttribute(attribute);
+        for (const element of root.querySelectorAll("[bis_skin_checked],[fdprocessedid]")) {
+          for (const attribute of injectedAttributes) element.removeAttribute(attribute);
+        }
+      };
+      clean(document.documentElement);
+      const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+          if (mutation.type === "attributes") {
+            mutation.target.removeAttribute(mutation.attributeName);
+          }
+          for (const node of mutation.addedNodes) clean(node);
+        }
+      });
+      observer.observe(document.documentElement, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: injectedAttributes,
+      });
+      window.addEventListener("load", () => {
+        clean(document.documentElement);
+        window.setTimeout(() => observer.disconnect(), 3000);
+      });
+    })();
+  `;
+
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className="h-full antialiased"
       suppressHydrationWarning
     >
+      <head>
+        <script
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: extensionHydrationGuard }}
+        />
+      </head>
       <body
         className="min-h-full flex flex-col bg-white text-slate-900"
         suppressHydrationWarning
