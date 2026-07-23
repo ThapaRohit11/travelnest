@@ -226,7 +226,7 @@ export default function LoginPage() {
                 <div className="mt-3 text-center">
                   <button
                     type="button"
-                    onClick={() => setIsAdminLogin(true)}
+                    onClick={() => router.push("/admin")}
                     className="text-sm font-medium text-slate-500 transition-colors hover:text-blue-600"
                   >
                     Admin Login
